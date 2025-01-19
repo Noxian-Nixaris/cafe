@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="card col-4">
+  <div class="card-header">
+    <h3>Найти заказ</h3>
+  </div>
+  <div class="card-body">
+      <form method="get">
+        <label for="order_id">Введите ID заказа:</label>
+        <input type="text" id="order_id" name="order_id" required>
+        {% bootstrap_button  type="submit" content="Найти" %}
+      </form>
+      {% if message %}
+        <p>{{ message }}</p>
+      {% endif%}
+    </select>
+  </div>
+</div>
+{% endblock %}

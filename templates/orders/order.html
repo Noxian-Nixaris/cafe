@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="card col-4">
+  <div class="card-header">
+    <h3>Заказ номер {{ order.id }}</h3>
+  </div>
+  
+  <div class="card-body">
+    <p>Стол номер {{ order.table_number }}
+    {% for dish in dishes %}
+      <p>{{ dish.name }} цена {{ dish.price }}
+    {% endfor %}
+    <p><a href="{% url 'orders:edit_order' order.id %}" class="btn btn-primary">Редактировать</a>
+      <a href="{% url 'orders:delete_order' order.id %}" class="btn btn-primary">Удалить заказ</a>
+  </div>
+</div>
+{% endblock %}
