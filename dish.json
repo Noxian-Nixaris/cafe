@@ -1,0 +1,26 @@
+[
+{
+  "model": "orders.dish",
+  "pk": 1,
+  "fields": {
+    "name": "блюдо 1",
+    "price": 420
+  }
+},
+{
+  "model": "orders.dish",
+  "pk": 2,
+  "fields": {
+    "name": "блюдо 2",
+    "price": 300
+  }
+},
+{
+  "model": "orders.dish",
+  "pk": 3,
+  "fields": {
+    "name": "блюдо 3",
+    "price": 400
+  }
+}
+]

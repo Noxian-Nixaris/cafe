@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
+<head>
     <meta charset="UTF-8">
     <title>Кафе</title>
-    {% load django_bootstrap5 %}
-    {% bootstrap_css %}
-  </head>
-  <body>
+    
+    {% load static %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/stylesheet.css' %}">
+</head>
+<body>
     <div class="container pt-5">
-      <p><a href="{% url 'orders:create' %}" class="btn btn-primary">Создать заказ</a>
-        <a href="{% url 'orders:search' %}" class="btn btn-primary">Найти заказ</a>
+        <p>
+            <a href="{% url 'orders:shift' %}" class="button button-blue">Смена</a>
+            <a href="{% url 'orders:create' %}" class="button button-blue">Создать заказ</a>
+            <a href="{% url 'orders:list' %}" class="button button-blue">Все заказы</a>
+            <a href="{% url 'orders:search' %}" class="button button-blue">Найти заказ</a>
+        </p>
     </div>
     <div class="container pt-5">
-      {% block content %}{% endblock %}
+        {% block content %}{% endblock %}
     </div>
-  </body>
+</body>
 </html>

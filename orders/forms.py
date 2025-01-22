@@ -1,7 +1,7 @@
 from django import forms
+from django.core.exceptions import ValidationError
 
-from core.constants import STATUS
-from orders.models import Dish, Order
+from orders.models import Order
 
 
 class OrderCreateForm(forms.ModelForm):
@@ -13,12 +13,10 @@ class OrderCreateForm(forms.ModelForm):
             'items': forms.CheckboxSelectMultiple
         }
 
+    def clean_table_number(self):
+        table_number = self.cleaned_data.get('table_number')
 
-class OrderForm(forms.ModelForm):
+        if table_number is not None and table_number < 0:
+            raise ValidationError('Номера стола не может быть отрицательным.')
 
-    class Meta:
-        model = Order
-        fields = ('table_number', 'items', 'status')
-        widgets = {
-            'items': forms.CheckboxSelectMultiple
-        }
+        return table_number

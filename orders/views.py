@@ -1,7 +1,48 @@
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 
-from orders.forms import OrderCreateForm, OrderForm
-from orders.models import Dish, Order
+from core.constants import STATUS
+from orders.forms import OrderCreateForm
+from orders.models import Order, Shift
+
+
+def shift(request):
+    template_name = 'orders/shift.html'
+    message = None
+    shifts = Shift.objects.all().order_by('-id')
+    current_shift = shifts.filter(is_open=True).last()
+    if request.method == 'POST':
+        if 'open' in request.POST:
+            try:
+                Shift.objects.get(is_open=True)
+                message = 'Смена уже открыта'
+            except Shift.DoesNotExist:
+                Shift.objects.create()
+                message = 'Смена открыта'
+        elif 'close' in request.POST:
+            try:
+                shift = Shift.objects.get(is_open=True)
+                shift.is_open = False
+                shift.save()
+                message = 'Смена закрыта'
+            except Shift.DoesNotExist:
+                message = 'Нет открытой смены'
+    elif request.method == 'GET':
+        if 'calculate' in request.GET:
+            try:
+                shift_id = request.GET.get('shift_id')
+                shift = Shift.objects.get(pk=shift_id)
+                orders = Order.objects.filter(shift=shift)
+                earnings = sum(order.total_price for order in orders)
+                message = f'Выручка {earnings}'
+            except Shift.DoesNotExist:
+                message = 'Такой смены нет'
+
+    context = {
+        'shifts': shifts,
+        'massage': message,
+        'current_shift': current_shift
+    }
+    return render(request, template_name, context)
 
 
 def search(request):
@@ -18,8 +59,31 @@ def search(request):
     return render(request, template_name, context)
 
 
+def list_order(request):
+    template_name = 'orders/list.html'
+    orders = Order.objects.all()
+
+    query = request.GET.get('search', '')
+    status_filter = request.GET.get('status', '')
+
+    if query:
+        orders = orders.filter(table_number=query)
+    if status_filter:
+        orders = orders.filter(status=status_filter)
+
+    context = {
+        'orders': orders,
+        'search_query': query,
+        'statuses': STATUS,
+        'selected_status': status_filter}
+    return render(request, template_name, context)
+
+
 def create(request):
     template_name = 'orders/form.html'
+
+    shift = Shift.objects.get_or_create(is_open=True)
+
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
         if form.is_valid():
@@ -27,10 +91,11 @@ def create(request):
             total_price = sum(dish.price for dish in form.cleaned_data['items'])
             order.total_price = total_price
             form.save()
-            print(order.id)
-            return redirect(f'{order.id}/')
+            shift[0].orders.add(order)
+            return redirect('orders:order', pk=order.id)
     else:
         form = OrderCreateForm()
+
     context = {'form': form}
     return render(request, template_name, context)
 
@@ -38,9 +103,8 @@ def create(request):
 def orders(request, pk):
     template_name = 'orders/order.html'
     try:
-        order = get_object_or_404(Order, id=pk)
-        dishes = Dish.objects.filter(order=pk)
-        context = {'order': order, 'dishes': dishes}
+        order = Order.objects.get(pk=pk)
+        context = {'order': order}
         return render(request, template_name, context)
     except Order.DoesNotExist:
         return redirect('orders:get_404')
@@ -51,14 +115,27 @@ def edit_order(request, pk):
     try:
         order = Order.objects.get(pk=pk)
         if request.method == 'POST':
-            form = OrderForm(request.POST, instance=order)
+            form = OrderCreateForm(request.POST, instance=order)
             if form.is_valid():
+                total_price = sum(dish.price for dish in form.cleaned_data['items'])
+                order.total_price = total_price
                 form.save()
                 return redirect('orders:order', pk=pk)
         else:
-            form = OrderForm(instance=order)
+            form = OrderCreateForm(instance=order)
             context = {'form': form}
             return render(request, template_name, context)
+    except Order.DoesNotExist:
+        return redirect('orders:get_404')
+
+
+def status_change(request, pk):
+    try:
+        order = Order.objects.get(pk=pk)
+        if order.status < 3:
+            order.status += 1
+        order.save()
+        return redirect('orders:order', pk=pk)
     except Order.DoesNotExist:
         return redirect('orders:get_404')
 
@@ -69,7 +146,7 @@ def delete_order(request, pk):
         order.delete()
     except Order.DoesNotExist:
         return redirect('orders:get_404')
-    return redirect('orders:create')
+    return redirect('orders:list')
 
 
 def get_404(request):

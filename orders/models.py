@@ -23,3 +23,14 @@ class Order(models.Model):
 
     class Meta:
         default_related_name = 'order'
+
+
+class Shift(models.Model):
+    is_open = models.BooleanField(default=True)
+    orders = models.ManyToManyField(Order, verbose_name='Заказы')
+
+    class Meta:
+        default_related_name = 'shift'
+
+    def str(self):
+        return self.id

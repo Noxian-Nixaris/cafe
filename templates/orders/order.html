@@ -1,20 +1,32 @@
 {% extends "base.html" %}
 
-{% load django_bootstrap5 %}
+{% load static %}
 
 {% block content %}
-<div class="card col-4">
-  <div class="card-header">
-    <h3>Заказ номер {{ order.id }}</h3>
-  </div>
+<link rel="stylesheet" type="text/css" href="{% static 'css/stylesheet.css' %}">
+<div class="card">
+    <div class="card-header">
+        <h3>Заказ номер {{ order.id }}</h3>
+    </div>
   
-  <div class="card-body">
-    <p>Стол номер {{ order.table_number }}
-    {% for dish in dishes %}
-      <p>{{ dish.name }} цена {{ dish.price }}
-    {% endfor %}
-    <p><a href="{% url 'orders:edit_order' order.id %}" class="btn btn-primary">Редактировать</a>
-      <a href="{% url 'orders:delete_order' order.id %}" class="btn btn-primary">Удалить заказ</a>
-  </div>
+    <div class="card-body">
+        <div class="order">Номер стола {{ order.table_number }}</div>
+        <div>Список блюд:
+            <ul class="item-list">
+                {% for dish in order.items.all %}
+                    <li>{{ dish.name }} цена {{ dish.price }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div>Общая стоимость: {{ order.total_price }}</div>
+        <div>Статус: {{ order.get_status_display }}
+            <a href="{% url 'orders:status_change' order.id %}" class="button button-blue">Изменить статус</a>
+        </div>
+    
+        <p>
+            <a href="{% url 'orders:edit_order' order.id %}" class="button button-green">Редактировать</a>
+            <a href="{% url 'orders:delete_order' order.id %}" class="button button-red">Удалить заказ</a>
+        </p>
+    </div>
 </div>
 {% endblock %}

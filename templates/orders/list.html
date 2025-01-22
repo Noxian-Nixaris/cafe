@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/stylesheet.css' %}">
+<div class="card">
+  <div class="card-header">
+    <h3>Список заказов</h3>
+    <form method="GET" action="">
+      <label for="search">Поиск по номеру стола:</label>
+      <input type="text" id="search" name="search" placeholder="Поиск по номеру стола" value="{{ search_query }}">
+      <label for="status">Статус:</label>
+      <select id="status" name="status" class="select">
+        <option value="">-- Выберите статус --</option>
+        {% for status in statuses %}
+          <option value="{{ status.0 }}" {% if selected_status == status.0|stringformat:"s" %}selected{% endif %}>{{ status.1 }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="button button-blue">Поиск</button>
+    </form>
+  </div>
+  <div class="card-body">
+    {% if orders %}
+      {% for order in orders %}
+          <div class="order">
+            <div class="order-header">Заказ ID: {{ order.id }}</div>
+            <div>Номер стола: {{ order.table_number }}</div>
+            <div>Список блюд:
+              <ul class="item-list">
+                  {% for dish in order.items.all %}
+                    <li>{{ dish.name }} ({{ dish.price }})</li>
+                  {% endfor %}
+              </ul>
+            </div>
+            <div>Общая стоимость: {{ order.total_price }}</div>
+            <div>Статус: {{ order.get_status_display }}</div>
+            <p>
+              <a href="{% url 'orders:order' order.id %}" class="button button-green">Редактировать</a>
+            </p>
+          </div>
+      {% endfor %}
+    {% else %}
+      <p>Нет заказов для отображения.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
