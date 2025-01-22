@@ -9,10 +9,15 @@
     <h3>Список заказов</h3>
     <form method="GET" action="">
       <label for="search">Поиск по номеру стола:</label>
-      <input type="text" id="search" name="search" placeholder="Поиск по номеру стола" value="{{ search_query }}">
+      <input type="number" id="search" name="search" placeholder="Поиск по номеру стола" value="{{ search_query }}" min="1">
+      {% if message %}
+        <div class="alert-warning">
+            {{ message }}
+        </div>
+      {% endif %}
       <label for="status">Статус:</label>
       <select id="status" name="status" class="select">
-        <option value="">-- Выберите статус --</option>
+        <option value="">Все заказы</option>
         {% for status in statuses %}
           <option value="{{ status.0 }}" {% if selected_status == status.0|stringformat:"s" %}selected{% endif %}>{{ status.1 }}</option>
         {% endfor %}

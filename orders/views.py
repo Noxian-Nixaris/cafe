@@ -36,10 +36,12 @@ def shift(request):
                 message = f'Выручка {earnings}'
             except Shift.DoesNotExist:
                 message = 'Такой смены нет'
+            except ValueError:
+                message = 'Номер смены не задан'
 
     context = {
         'shifts': shifts,
-        'massage': message,
+        'message': message,
         'current_shift': current_shift
     }
     return render(request, template_name, context)
@@ -48,34 +50,49 @@ def shift(request):
 def search(request):
     template_name = 'orders/search.html'
     order_id = request.GET.get('order_id')
-    context = {}
+    message = None
     if order_id:
         try:
             Order.objects.get(pk=order_id)
             return redirect('orders:order', pk=order_id)
         except Order.DoesNotExist:
             message = f'Заказ c ID {order_id} не найден.'
-            context = {'message': message}
+        except ValueError:
+            message = 'Некорректно задан номер стола'
+
+    context = {'message': message}
     return render(request, template_name, context)
 
 
 def list_order(request):
     template_name = 'orders/list.html'
     orders = Order.objects.all()
-
+    message = None
     query = request.GET.get('search', '')
     status_filter = request.GET.get('status', '')
 
     if query:
-        orders = orders.filter(table_number=query)
+        try:
+            if int(query) > 0:
+                print(type(query))
+                orders = orders.filter(table_number=query)
+            else:
+                message = 'Некорректно задан номер стола'
+        except ValueError:
+            message = 'Некорректно задан номер стола'
+
     if status_filter:
-        orders = orders.filter(status=status_filter)
+        if status_filter in [str(st[0]) for st in STATUS]:
+            orders = orders.filter(status=status_filter)
+        else:
+            message = 'Некорректно задан статус'
 
     context = {
         'orders': orders,
         'search_query': query,
         'statuses': STATUS,
-        'selected_status': status_filter}
+        'selected_status': status_filter,
+        'message': message}
     return render(request, template_name, context)
 
 

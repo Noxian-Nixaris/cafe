@@ -11,8 +11,8 @@
   <div class="card-body">
     <form method="get">
       <label for="order_id">Введите ID заказа:</label>
-      <input type="text" id="order_id" name="order_id" required>
-      <button type="submit">Найти</button>
+      <input type="number" min="1" id="order_id" name="order_id" required>
+      <button type="submit" class="button button-blue">Найти</button>
     </form>
     {% if message %}
       <p>{{ message }}</p>
