@@ -3,7 +3,7 @@
   "model": "orders.dish",
   "pk": 1,
   "fields": {
-    "name": "блюдо 1",
+    "name": "а блюдо",
     "price": 420
   }
 },
@@ -11,7 +11,7 @@
   "model": "orders.dish",
   "pk": 2,
   "fields": {
-    "name": "блюдо 2",
+    "name": "в блюдо",
     "price": 300
   }
 },
@@ -19,7 +19,7 @@
   "model": "orders.dish",
   "pk": 3,
   "fields": {
-    "name": "блюдо 3",
+    "name": "б блюдо",
     "price": 400
   }
 }

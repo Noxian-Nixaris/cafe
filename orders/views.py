@@ -66,7 +66,7 @@ def search(request):
 
 def list_order(request):
     template_name = 'orders/list.html'
-    orders = Order.objects.all()
+    orders = Order.objects.all().order_by('-id')
     message = None
     query = request.GET.get('search', '')
     status_filter = request.GET.get('status', '')
@@ -131,10 +131,14 @@ def edit_order(request, pk):
     template_name = 'orders/form.html'
     try:
         order = Order.objects.get(pk=pk)
+        if order.status == 3:
+            return redirect('orders:order', pk=pk)
         if request.method == 'POST':
             form = OrderCreateForm(request.POST, instance=order)
             if form.is_valid():
-                total_price = sum(dish.price for dish in form.cleaned_data['items'])
+                total_price = sum(
+                    dish.price for dish in form.cleaned_data['items']
+                )
                 order.total_price = total_price
                 form.save()
                 return redirect('orders:order', pk=pk)
